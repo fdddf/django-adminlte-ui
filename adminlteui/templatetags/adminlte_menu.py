@@ -39,65 +39,25 @@ def get_custom_menu(request):
     `label:model`
 
     :param request:
-    :return:
+    :return:lkkl
     """
-    all_permissions = request.user.get_all_permissions()
-
-    limit_for_internal_link = []
-    for permission in all_permissions:
-        app_label = permission.split('.')[0]
-        model = permission.split('.')[1].split('_')[1]
-        limit_for_internal_link.append('{}:{}'.format(app_label, model))
-
-    limit_for_internal_link = set(limit_for_internal_link)
-    new_available_apps = []
-    menu = Menu.dump_bulk()
-    for menu_item in menu:
-        new_available_apps_item = {}
-        data = (menu_item.get('data'))
-        if data.get('valid') is False:
-            continue
-
-        new_available_apps_item['name'] = data.get('name')
-        new_available_apps_item['icon'] = data.get('icon')
-
-        children = menu_item.get('children')
-        if not children:
-            # skip menu_item that no children and link type is devide.
-            if data.get('link_type') in (0, 1):
-                new_available_apps_item['admin_url'] = get_reverse_link(
-                    data.get('link'))
-                new_available_apps.append(new_available_apps_item)
-            continue
-        new_available_apps_item['models'] = []
-
-        for children_item in children:
-            if children_item.get('data').get('link_type') == 0:
-                # internal link should connect a content_type, otherwise it will be hide.
-                if children_item.get('data').get('content_type'):
-                    obj = ContentType.objects.get(id=children_item.get('data').get('content_type'))
-                    # if user hasn't permission, the model will be skip.
-                    if obj.app_label + ':' + obj.model not in limit_for_internal_link:
-                        continue
-                else:
-                    continue
-
-            if children_item.get('data').get('valid') is False:
-                continue
-            new_children_item = dict()
-            new_children_item['name'] = children_item.get('data').get('name')
-            new_children_item['admin_url'] = get_reverse_link(
-                children_item.get('data').get('link')
-            )
-            if not new_children_item['admin_url']:
-                continue
-            new_children_item['icon'] = children_item.get('data').get('icon')
-            # new_children_item['admin_url'] = children_item.get('link')
-            new_available_apps_item['models'].append(new_children_item)
-        if new_available_apps_item['models']:
-            new_available_apps.append(new_available_apps_item)
-
-    return new_available_apps
+    # all_permissions = request.user.get_all_permissions()
+    menus = Menu.objects.filter(valid=1)
+    # def recurse_node(node):
+    #     apps = []
+    #     context = {}
+    #     if not node.valid:
+    #         return
+    #     for child in node.get_children():
+    #         return recurse_node(child)
+    #
+    #     context['name'] = node.name
+    #     context['icon'] = node.icon
+    #     context['models'] = apps
+    #     if node.link_type in (0, 1):
+    #         context['admin_url'] = get_reverse_link(node.link)
+    #     return node
+    return menus
 
 
 @simple_tag(takes_context=True)
@@ -111,7 +71,7 @@ def get_menu(context, request):
     use_custom_menu = get_adminlte_option('USE_CUSTOM_MENU')
     if use_custom_menu.get('USE_CUSTOM_MENU',
                            '0') == '1' and use_custom_menu.get('valid') is True:
-        return get_custom_menu(request)
+        return get_custom_menu(request), True
 
     # Django 1.9+
     available_apps = context.get('available_apps')
@@ -151,7 +111,7 @@ def get_menu(context, request):
                                      }
                                      )
     # return MenuManager(available_apps, context, request)
-    return available_apps
+    return available_apps, False
 
 
 def get_admin_site(current_app):
@@ -173,3 +133,11 @@ def get_admin_site(current_app):
         pass
     from django.contrib import admin
     return admin.site
+
+
+@simple_tag(takes_context=True)
+def resolve_menu_link(context, request):
+    menu = context.get('node')
+    if menu.is_leaf_node() and menu.link_type in (0, 1) and menu.link:
+            return get_reverse_link(menu.link)
+    return 'javascript:void();'

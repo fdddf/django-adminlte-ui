@@ -111,7 +111,7 @@ effect:
 
 ## Menu
 
-Custom your menu depends on database && treebeard.
+Custom your menu depends on database && django-mptt.
 
 `depth 2` only, more will not effective now.
 
@@ -138,7 +138,7 @@ Exchange Menu by click the `Exchange Menu` button
 - icon: [icon](https://adminlte.io/themes/AdminLTE/pages/UI/icons.html)
 - content_type: Use for permission control, if user don't have permission to access the `app_label:model` in content_type, it will be skipped.
 - valid: This menu item effective only when the valid is True.
-- treebeard option: for order.
+- mptt option: for order.
 
 ### get django url name for link
 

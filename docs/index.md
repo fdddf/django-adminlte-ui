@@ -37,8 +37,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    # custom menu base on treebeard
-    'treebeard',
+    # custom menu base on mptt
+    'mptt',
     ...
 ]
 ```
@@ -83,5 +83,5 @@ python manage.py migrate django_admin_settings
 
 - [AdminLTE](https://github.com/ColorlibHQ/AdminLTE)
 - [django](https://github.com/django/django)
-- [django-treebeard](https://github.com/django-treebeard/django-treebeard)
+- [django-mptt](https://github.com/django-mptt/django-mptt)
 - [django-suit](https://github.com/darklow/django-suit)

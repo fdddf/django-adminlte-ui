@@ -40,7 +40,27 @@
 
 
 <div class="row">
-    <div class="col-md-12">
+    {% block filters %}
+    {% if cl.has_filters %}
+    <div class="col-md-3 pull-right">
+        {% for spec in cl.filter_specs %}
+        <div class="box box-warning">
+            <div class="box-header with-border">
+                <h4 class="box-title">{% trans 'Filter' %}{% blocktrans with filter_title=spec.title %} by {{ filter_title }} {% endblocktrans %}</h4>                
+                <div class="box-tools">
+                    <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="box-body">
+                {% admin_list_filter cl spec %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+    {% endblock %}      
+    <div class="{% if cl.has_filters %}col-md-9{% else %}col-md-12{% endif %}">
         <div class="box box-primary">
             <div class="box-header with-border">
                 <h4 class="box-title">
@@ -56,7 +76,7 @@
                     </p>
                     {{ cl.formset.non_form_errors }}
                     {% endif %}
-                    <div class="module{% if cl.has_filters %} filtered{% endif %}" id="changelist">
+                    <div class="module" id="changelist">
                         <div class="row" style="margin-bottom: 15px;">
                             {% block search %}
                             <div class="col-md-10 col-sm-12 col-xs-12" id="toolbar">
@@ -65,7 +85,7 @@
                             {% endblock %}
 
                             {% block object-tools %}
-                            <div {% if cl.has_filters or cl.search_fields %}class="col-md-2 col-sm-12 col-xs-12 text-right"{% else %}class="col-md-12"{% endif %}>
+                            <div {% if cl.search_fields %}class="col-md-2 col-sm-12 col-xs-12 text-right"{% else %}class="col-md-12"{% endif %}>
                                 {% block object-tools-items %}
                                 {% change_list_object_tools %}
                                 {% endblock %}
@@ -92,7 +112,6 @@
                     </div>
                 </div>
             </div>
-
         </div>
         <br class="clear" />
     </div>

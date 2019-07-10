@@ -165,9 +165,42 @@
                         <i class="fa fa-dashboard"></i> <span>{% trans 'Dashboard' %}</span>
                     </a>
                 </li>
+                {% load mptt_tags %}
                 {% get_menu request as app_list %}
-                {% if app_list %}
-                {% for app in app_list %}
+                {% if app_list.0 %}
+                {% if app_list.1 %}
+                {% recursetree app_list.0 %}
+                <li {% if not node.admin_url %}class="treeview"{% endif %}>
+                    {% resolve_menu_link node as node_url %}
+                    {% if node.is_root_node %}
+                    <a href="{{ node_url }}">
+                        <i class="fa {% if node.icon %} {{node.icon}} {% else %}fa-database{% endif %}"></i>
+                        <span style="overflow: hidden; display: inline-block; vertical-align:top;">{{ node.name }}</span>
+                        {% if not node.admin_url and not node.is_leaf_node %}
+                        <span class="pull-right-container">
+                          <i class="fa fa-angle-left pull-right"></i>
+                        </span>
+                        {% endif %}
+                    </a>
+                    {% else %}
+                        <a href="{{ node_url }}">
+                            <i class="fa {% if node.icon %} {{node.icon}} {% else %}fa-circle-o{% endif %}"></i>{{ node.name }}
+                            {% if not node.is_leaf_node and not node.admin_url %}
+                            <span class="pull-right-container">
+                              <i class="fa fa-angle-left pull-right"></i>
+                            </span>
+                            {% endif %}
+                        </a>
+                    {% endif %}
+                    {% if not node.is_leaf_node %}
+                    <ul class="treeview-menu">
+                        {{ children }}
+                    </ul>
+                    {% endif %}
+                </li>
+                {% endrecursetree %}
+                {% else %}
+                {% for app in app_list.0 %}
                 <li {% if not app.admin_url %}class="treeview"{% endif %}>
                     <a href="{% if app.admin_url %}{{app.admin_url}}{% else %}javascript:void(0){% endif %}">
                         <i class="fa {% if app.icon %} {{app.icon}} {% else %}fa-database{% endif %}"></i>
@@ -189,6 +222,9 @@
                     {% endif %}
                 </li>
                 {% endfor %}
+
+                {% endif %}
+
                 {% endif %}
                 <!--{% if request.user.is_superuser %}-->
                 <!--<li class="treeview">-->

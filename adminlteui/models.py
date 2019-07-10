@@ -4,7 +4,7 @@ from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 from django.contrib.contenttypes.models import ContentType
 
-from treebeard.mp_tree import MP_Node
+from mptt.models import MPTTModel, TreeForeignKey
 
 
 class Options(models.Model):
@@ -26,7 +26,7 @@ class Options(models.Model):
         verbose_name_plural = _('All Options')
 
 
-class Menu(MP_Node):
+class Menu(MPTTModel):
     LINK_TYPE = (
         (0, _('Internal')),
         (1, _('External')),
@@ -52,11 +52,12 @@ class Menu(MP_Node):
                                          'use for permission control.'))
 
     valid = models.BooleanField(default=True, verbose_name=_('Valid'))
-    node_order_by = ['name', 'position']
-
-    def __str__(self):
-        return '{}'.format(self.name)
+    parent = TreeForeignKey('self', on_delete=models.CASCADE, null=True, blank=True, related_name='children')
 
     class Meta:
         verbose_name = _('Menu')
         verbose_name_plural = _('Menu Setting')
+        # order_insertion_by = ['name']
+
+    def __str__(self):
+        return '{}'.format(self.name)

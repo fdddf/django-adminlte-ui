@@ -12,8 +12,7 @@ from django.utils.html import format_html
 from django.conf import settings
 from django.http.response import HttpResponse
 from adminlteui.widgets import AdminlteSelect
-from treebeard.admin import TreeAdmin
-from treebeard.forms import movenodeform_factory
+from mptt.admin import MPTTModelAdmin
 from .models import Options, Menu, ContentType
 
 
@@ -192,13 +191,12 @@ class OptionsAdmin(admin.ModelAdmin):
 
 
 @admin.register(Menu)
-class MenuAdmin(TreeAdmin):
+class MenuAdmin(MPTTModelAdmin):
     list_display = ('name', 'position', 'link_type', 'display_link',
                     'display_content_type', 'display_icon',
-                    'valid')
+                    'valid', )
     list_filter = ('position', 'link_type', 'valid')
     list_editable = ('valid',)
-    form = movenodeform_factory(Menu)
     change_list_template = 'adminlte/menu_change_list.html'
     change_form_template = 'adminlte/menu_change_form.html'
 
@@ -237,7 +235,9 @@ class MenuAdmin(TreeAdmin):
                 use_custom_menu = Options.objects.get(
                     option_name='USE_CUSTOM_MENU')
             except Options.DoesNotExist:
-                use_custom_menu = None
+                use_custom_menu = Options.objects.create(
+                    option_name='USE_CUSTOM_MENU', option_value='0'
+                )
 
             if not use_custom_menu or use_custom_menu.option_value == '0':
                 use_custom_menu.option_value = '1'

@@ -20,6 +20,6 @@ setup(
     zip_safe=False,
     entry_points={},
     install_requires=[
-        'django-treebeard==4.3'
+        'django-mptt==0.10.0'
     ],
 )
